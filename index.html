@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Informasi Pariwisata Kabupaten Blitar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        /* Gambar Tabel dengan Efek Hover Zoom */
+        .table-img {
+            width: 80px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .table-img:hover {
+            transform: scale(1.18);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Styling Slider / Carousel Gambar Interaktif */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background-color: #000;
+        }
+        .slide-item {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: none;
+            cursor: pointer;
+        }
+        .slide-item.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(11, 37, 69, 0.75);
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .slider-btn:hover {
+            background-color: #0b2545;
+        }
+        .prev-btn { left: 8px; }
+        .next-btn { right: 8px; }
+        .slider-caption {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(11, 37, 69, 0.85);
+            color: #ffffff;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Navigasi Kategori Interaktif */
+        .cat-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+        .cat-item {
+            cursor: pointer;
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .cat-item:hover, .cat-item.active {
+            background-color: #134074;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        /* Modal Lightbox (Klik Gambar untuk Memperbesar) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .modal-img {
+            max-width: 85%;
+            max-height: 75%;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: zoomIn 0.3s ease;
+        }
+        .modal-title {
+            color: #ffffff;
+            margin-top: 12px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 25px;
+            color: #ffffff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+
+<body bgcolor="#eef2f7">
+
+    <!-- Tabel Utama Pembungkus Halaman -->
+    <table border="1" width="850" align="center" cellpadding="5" cellspacing="0" bgcolor="#ffffff">
+        
+        <!-- Baris Login -->
+        <tr>
+            <td align="right" bgcolor="#d0e1f9">
+                <a href="#"><font color="#1b4965"><b>login</b></font></a>
+            </td>
+        </tr>
+
+        <!-- Header Judul -->
+        <tr>
+            <td align="center" bgcolor="#0b2545">
+                <font color="#ffffff">
+                    <h2>SISTEM INFORMASI PARIWISATA<br>KABUPATEN BLITAR</h2>
+                </font>
+            </td>
+        </tr>
+
+        <!-- Logo Kabupaten Blitar (Menggunakan nama file Logo blitar.png) -->
+        <tr>
+            <td align="center" style="padding: 10px;" bgcolor="#ffffff">
+                <img src="Logo blitar.png" width="110" alt="Logo Kabupaten Blitar" title="Logo Kabupaten Blitar">
+            </td>
+        </tr>
+
+        <!-- Konten Utama -->
+        <tr>
+            <td>
+                <table border="1" width="100%" cellpadding="6" cellspacing="0">
+                    <tr valign="top">
+                        
+                        <!-- Menu Navigasi Samping Interaktif -->
+                        <td width="190" bgcolor="#eef2f7">
+                            <font color="#0b2545"><b>Kategori Wisata:</b></font>
+                            <ul class="cat-list">
+                                <li class="cat-item active" onclick="filterCategory('semua', this)"><b>Semua Destinasi</b></li>
+                                <li class="cat-item" onclick="filterCategory('Sejarah', this)">Wisata Sejarah</li>
+                                <li class="cat-item" onclick="filterCategory('Alam', this)">Wisata Alam</li>
+                                <li class="cat-item" onclick="filterCategory('Edukasi', this)">Wisata Edukasi</li>
+                                <li class="cat-item" onclick="filterCategory('Bahari', this)">Wisata Bahari</li>
+                            </ul>
+                        </td>
+
+                        <!-- Tabel Daftar Wisata & Banner Interaktif -->
+                        <td>
+                            <!-- Banner Slider Interaktif (Gambar Bisa Digeser/Diklik) -->
+                            <div class="slider-container">
+                                <img class="slide-item active" src="https://www.blitarkab.go.id/wp-content/uploads/2016/05/slide2-Copy.jpg" alt="Candi Penataran" onclick="openModal(this.src, 'Candi Penataran - Nglegok')">
+                                <img class="slide-item" src="https://kabarbaik.co/wp-content/uploads/2025/05/5c4f442d-6639-4b82-8db4-a471093c630b-scaled.jpeg" alt="Makam Bung Karno" onclick="openModal(this.src, 'Makam Bung Karno - Sananwetan')">
+                                <img class="slide-item" src="https://cdn-1.timesmedia.co.id/images/2026/02/01/Pantai-Serang.jpg" alt="Pantai Serang" onclick="openModal(this.src, 'Pantai Serang - Panggungrejo')">
+                                <img class="slide-item" src="https://ik.imgkit.net/tvlk/blog/2024/08/CQrsO8VI-image-3-edited.png" alt="Kampung Coklat" onclick="openModal(this.src, 'Kampung Coklat - Kademangan')">
+                                
+                                <button class="slider-btn prev-btn" onclick="changeSlide(-1)">&#10094;</button>
+                                <button class="slider-btn next-btn" onclick="changeSlide(1)">&#10095;</button>
+                                <div class="slider-caption" id="sliderCaption">Candi Penataran - Nglegok (Klik Gambar)</div>
+                            </div>
+
+                            <center><h3><font color="#0b2545">Daftar Destinasi Wisata Unggulan</font></h3></center>
+                            
+                            <table border="1" width="100%" cellpadding="5" cellspacing="0" id="wisataTable">
+                                <thead>
+                                    <tr bgcolor="#134074">
+                                        <th><font color="#ffffff">Foto</font></th>
+                                        <th><font color="#ffffff">Nama Destinasi</font></th>
+                                        <th><font color="#ffffff">Kecamatan</font></th>
+                                        <th><font color="#ffffff">Kategori</font></th>
+                                        <th><font color="#ffffff">HTM (Est.)</font></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-category="Sejarah">
+                                        <td align="center"><img class="table-img" src="https://www.blitarkab.go.id/wp-content/uploads/2016/05/slide2-Copy.jpg" alt="Candi Penataran" onclick="openModal(this.src, 'Candi Penataran')"></td>
+                                        <td><b>Candi Penataran</b></td>
+                                        <td>Nglegok</td>
+                                        <td>Sejarah / Cagar Budaya</td>
+                                        <td>Rp5.000</td>
+                                    </tr>
+                                    <tr bgcolor="#f0f4f8" data-category="Sejarah">
+                                        <td align="center"><img class="table-img" src="https://kabarbaik.co/wp-content/uploads/2025/05/5c4f442d-6639-4b82-8db4-a471093c630b-scaled.jpeg" alt="Makam Bung Karno" onclick="openModal(this.src, 'Makam Bung Karno')"></td>
+                                        <td><b>Makam Bung Karno</b></td>
+                                        <td>Sananwetan / Blitar</td>
+                                        <td>Sejarah / Ziarah</td>
+                                        <td>Rp3.000</td>
+                                    </tr>
+                                    <tr data-category="Bahari Alam">
+                                        <td align="center"><img class="table-img" src="https://cdn-1.timesmedia.co.id/images/2026/02/01/Pantai-Serang.jpg" alt="Pantai Serang" onclick="openModal(this.src, 'Pantai Serang')"></td>
+                                        <td><b>Pantai Serang</b></td>
+                                        <td>Panggungrejo</td>
+                                        <td>Bahari / Alam</td>
+                                        <td>Rp10.000</td>
+                                    </tr>
+                                    <tr bgcolor="#f0f4f8" data-category="Edukasi">
+                                        <td align="center"><img class="table-img" src="https://ik.imgkit.net/tvlk/blog/2024/08/CQrsO8VI-image-3-edited.png" alt="Kampung Coklat" onclick="openModal(this.src, 'Kampung Coklat')"></td>
+                                        <td><b>Kampung Coklat</b></td>
+                                        <td>Kademangan</td>
+                                        <td>Edukasi / Buatan</td>
+                                        <td>Rp20.000</td>
+                                    </tr>
+                                    <tr data-category="Bahari Alam">
+                                        <td align="center"><img class="table-img" src="https://ik.imgkit.net/tvlk/blog/2025/01/shutterstock_2420824717.jpg?tr=q-70,c-at_max,w-1000,h-600" alt="Pantai Tambakrejo" onclick="openModal(this.src, 'Pantai Tambakrejo')"></td>
+                                        <td><b>Pantai Tambakrejo</b></td>
+                                        <td>Wonotirto</td>
+                                        <td>Bahari / Alam</td>
+                                        <td>Rp10.000</td>
+                                    </tr>
+                                    <tr bgcolor="#f0f4f8" data-category="Alam">
+                                        <td align="center"><img class="table-img" src="https://media.indozone.id/crop/1200x630:0x0/smart/photo/p2/95/2023/09/01/IMG_20230810_141715-3980247887.jpg" alt="Rambut Monte" onclick="openModal(this.src, 'Rambut Monte')"></td>
+                                        <td><b>Rambut Monte</b></td>
+                                        <td>Gandusari</td>
+                                        <td>Alam / Danau</td>
+                                        <td>Rp5.000</td>
+                                    </tr>
+                                    <tr data-category="Alam">
+                                        <td align="center"><img class="table-img" src="https://nativeindonesia.com/foto/2023/04/Hutan-Pinus-Loji.jpg" alt="Hutan Pinus Gondo Mayit" onclick="openModal(this.src, 'Hutan Pinus Gondo Mayit (Loji)')"></td>
+                                        <td><b>Hutan Pinus Gondo Mayit (Loji)</b></td>
+                                        <td>Bakung</td>
+                                        <td>Alam / Perkebunan</td>
+                                        <td>Rp5.000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+            <td align="center" bgcolor="#0b2545">
+                <font color="#ffffff" size="2">
+                    <p>
+                        <a href="https://www.blitarkab.go.id" target="_blank"><font color="#8da9c4">Pemerintah Kabupaten Blitar</font></a><br>
+                        Jl. S. Supriadi No. 17, Kepanjenlor, Kec. Kepanjenkidul, Kota Blitar, Jawa Timur 66117
+                    </p>
+                </font>
+            </td>
+        </tr>
+
+    </table>
+
+    <!-- Modal Popup Gambar Besar -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-img" id="modalImg">
+        <div class="modal-title" id="modalTitle"></div>
+    </div>
+
+    <!-- Script JavaScript Interaktif -->
+    <script>
+        // 1. Logika Slider Gambar Interaktif
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-item');
+        const caption = document.getElementById('sliderCaption');
+
+        function showSlide(index) {
+            slides.forEach((slide) => slide.classList.remove('active'));
+            if (index >= slides.length) currentSlide = 0;
+            else if (index < 0) currentSlide = slides.length - 1;
+            else currentSlide = index;
+
+            slides[currentSlide].classList.add('active');
+            caption.innerText = slides[currentSlide].alt + " (Klik Gambar)";
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Auto play slider setiap 3.5 detik
+        setInterval(() => changeSlide(1), 3500);
+
+        // 2. Logika Modal Pop-up Gambar
+        function openModal(imgSrc, titleText) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImg');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            modal.style.display = "flex";
+            modalImg.src = imgSrc;
+            modalTitle.innerText = titleText;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = "none";
+        }
+
+        // 3. Logika Filter Kategori Interaktif
+        function filterCategory(cat, element) {
+            // Ubah tampilan menu aktif
+            document.querySelectorAll('.cat-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            // Filter baris tabel
+            const rows = document.querySelectorAll('#wisataTable tbody tr');
+            rows.forEach(row => {
+                const categoryData = row.getAttribute('data-category');
+                if (cat === 'semua' || (categoryData && categoryData.includes(cat))) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
